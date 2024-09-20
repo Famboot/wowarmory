@@ -1,0 +1,49 @@
+{
+  "name": "michiruf/php-shell",
+  "type": "project",
+  "description": "The skeleton application for the Laravel framework.",
+  "keywords": ["shell"],
+  "license": "MIT",
+  "require": {
+    "php": "^8.3",
+    "chrome-php/chrome": "^1.11",
+    "composer/composer": "^2.7",
+    "gregwar/image": "^2.1",
+    "illuminate/collections": "^11.23",
+    "illuminate/filesystem": "^11.4"
+  },
+  "require-dev": {
+    "fakerphp/faker": "^1.23",
+    "laravel/pint": "^1.14",
+    "laravel/sail": "^1.32",
+    "mockery/mockery": "^1.6",
+    "nunomaduro/collision": "^8.0",
+    "pestphp/pest": "^2.34"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "php-http/discovery": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
