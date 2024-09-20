@@ -35,7 +35,7 @@ $data = loadData($listedThreshold);
 //    true
 //);
 writeImage($filePath, $data, $rareThreshold, $epicThreshold, $legendaryThreshold, $fontPath);
-//outputImage($filePath);
+outputImage($filePath);
 
 /**
  * @return array<array{name: string, class: string, itemLevel: string}>
@@ -46,21 +46,23 @@ function loadData(int $listedThreshold): array
 
     $browserFactory = new BrowserFactory('chromium');
     $browserFactory->setOptions([
-        'sendSyncDefaultTimeout' => 10000, // defaults to 5000
+        'sendSyncDefaultTimeout' => 30000, // defaults to 5000
         'userAgent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.9) Gecko/20071025 Firefox/2.0.0.9',
-        'debugLogger' => 'php://stdout',
+        //'debugLogger' => 'php://stdout',
         'headless' => true,
         'noSandbox' => true,
+        'customFlags' => ['--disable-dev-shm-usage'] # because shm is limited in docker, this fixed the major issue of not processing
     ]);
     $browser = $browserFactory->createBrowser();
 
     try {
         $page = $browser->createPage();
-        $page
-            ->navigate('https://worldofwarcraft.blizzard.com/de-de/guild/eu/arygos/famboot?page=1&view=item-level&sort-column=5&sort-descending=false')//->waitForNavigation(Page::FIRST_MEANINGFUL_PAINT, 30000)
-        ;
-        // Anyhow, waitForNavigation does not work consistently
-        sleep(5);
+        $page->navigate('https://worldofwarcraft.blizzard.com/de-de/guild/eu/arygos/famboot?page=1&view=item-level&sort-column=5&sort-descending=false');
+        try {
+            $page->waitUntilContainsElement('.GuildProfileRoster-table');
+        } catch(Exception) {
+            // Because we stil want to continue
+        }
 
         $rows = $page->dom()
             ->querySelector('.GuildProfileRoster-table')
