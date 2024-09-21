@@ -21,37 +21,35 @@ composerRequire([
 use Gregwar\Image\Image;
 use HeadlessChromium\BrowserFactory;
 use HeadlessChromium\Dom\Node;
+use Illuminate\Support\Arr;
 
 $filePath = 'armory.png';
+$listedLevelThreshold = 80;
 $listedThreshold = 500;
 $rareThreshold = 540;
 $epicThreshold = 600;
 $legendaryThreshold = 650;
 $fontPath = 'fonts/InriaSans-Bold.ttf';
 
-$data = loadData($listedThreshold);
-////echo json_encode($data);
+$data = loadData();
+////echo json_encode($data) . "\n<br><br>\n\n". json_encode($data, JSON_PRETTY_PRINT);
 ////exit();
 //$data = json_decode(
-//    '[{"name":"Tschubax","class":"Mage","itemLevel":"606"},{"name":"Pfl\u00f6nch","class":"Monk","itemLevel":"605"},{"name":"Kurnous","class":"Priest","itemLevel":"603"},{"name":"Droideka","class":"Druid","itemLevel":"603"},{"name":"Krustenk\u00e4se","class":"Warrior","itemLevel":"600"},{"name":"Sorunia","class":"Death Knight","itemLevel":"599"},{"name":"Fr\u00f6stelts","class":"Death Knight","itemLevel":"593"},{"name":"Krustenkase","class":"Warlock","itemLevel":"592"},{"name":"Alele","class":"Priest","itemLevel":"587"},{"name":"P\u00fampernickel","class":"Shaman","itemLevel":"579"},{"name":"Keinmut","class":"Druid","itemLevel":"577"},{"name":"Kodeqs","class":"Hunter","itemLevel":"569"},{"name":"Silador","class":"Paladin","itemLevel":"568"},{"name":"Vertun","class":"Warrior","itemLevel":"539"},{"name":"Fireprism","class":"Monk","itemLevel":"527"},{"name":"Bobbini","class":"Priest","itemLevel":"519"},{"name":"Pflonkk","class":"Demon Hunter","itemLevel":"500"},{"name":"Gradon","class":"Evoker","itemLevel":"500"}]',
+//    '[{"name":"Tschubax","race":"Undead","class":"Mage","role":"Damage","level":"80","itemLevel":"608"},{"name":"Kurnous","race":"Undead","class":"Priest","role":"Healer","level":"80","itemLevel":"606"},{"name":"Pfl\u00f6nch","race":"Undead","class":"Monk","role":"Healer","level":"80","itemLevel":"605"},{"name":"Droideka","race":"Zandalari Troll","class":"Druid","role":"Tank","level":"80","itemLevel":"604"},{"name":"Krustenk\u00e4se","race":"Orc","class":"Warrior","role":"Tank","level":"80","itemLevel":"600"},{"name":"Sorunia","race":"Blood Elf","class":"Death Knight","role":"Tank","level":"80","itemLevel":"599"},{"name":"Krustenkase","race":"Orc","class":"Warlock","role":"Damage","level":"80","itemLevel":"598"},{"name":"Fr\u00f6stelts","race":"Orc","class":"Death Knight","role":"Damage","level":"80","itemLevel":"597"},{"name":"Alele","race":"Blood Elf","class":"Priest","role":"Damage","level":"80","itemLevel":"587"},{"name":"P\u00fampernickel","race":"Troll","class":"Shaman","role":"Damage","level":"80","itemLevel":"579"},{"name":"Keinmut","race":"Zandalari Troll","class":"Druid","role":"Damage","level":"80","itemLevel":"577"},{"name":"Kodeqs","race":"Orc","class":"Hunter","role":"Damage","level":"80","itemLevel":"569"},{"name":"Silador","race":"Blood Elf","class":"Paladin","role":"Damage","level":"80","itemLevel":"568"},{"name":"Vertun","race":"Orc","class":"Warrior","role":"Damage","level":"80","itemLevel":"539"},{"name":"Fireprism","race":"Pandaren","class":"Monk","role":"Tank","level":"80","itemLevel":"527"},{"name":"Bobbini","race":"Undead","class":"Priest","role":"Healer","level":"80","itemLevel":"519"},{"name":"Pflonkk","race":"Blood Elf","class":"Demon Hunter","role":"Tank","level":"72","itemLevel":"500"},{"name":"Gradon","race":"Dracthyr","class":"Evoker","role":"Damage","level":"70","itemLevel":"500"},{"name":"Pflonk","race":"Orc","class":"Warrior","role":"Damage","level":"72","itemLevel":"494"},{"name":"Bigfud","race":"Tauren","class":"Druid","role":"Tank","level":"70","itemLevel":"483"},{"name":"Kutti","race":"Undead","class":"Death Knight","role":"Tank","level":"70","itemLevel":"481"},{"name":"Raxax","race":"Goblin","class":"Shaman","role":"Damage","level":"70","itemLevel":"480"},{"name":"Shnipshnap","race":"Goblin","class":"Rogue","role":"Damage","level":"74","itemLevel":"476"},{"name":"Lillith","race":"Troll","class":"Mage","role":"Damage","level":"70","itemLevel":"465"},{"name":"Holycow","race":"Tauren","class":"Paladin","role":"Tank","level":"70","itemLevel":"432"}]',
 //    true
 //);
 //if (isset($_GET['short'])) {
 //    $data = json_decode(
-//        '[{"name":"Sorunia","class":"Death Knight","itemLevel":"599"},{"name":"Fr\u00f6stelts","class":"Death Knight","itemLevel":"593"},{"name":"Krustenkase","class":"Warlock","itemLevel":"592"},{"name":"Alele","class":"Priest","itemLevel":"587"},{"name":"P\u00fampernickel","class":"Shaman","itemLevel":"579"},{"name":"Keinmut","class":"Druid","itemLevel":"577"},{"name":"Kodeqs","class":"Hunter","itemLevel":"569"},{"name":"Silador","class":"Paladin","itemLevel":"568"},{"name":"Vertun","class":"Warrior","itemLevel":"539"},{"name":"Fireprism","class":"Monk","itemLevel":"527"},{"name":"Bobbini","class":"Priest","itemLevel":"519"},{"name":"Pflonkk","class":"Demon Hunter","itemLevel":"500"},{"name":"Gradon","class":"Evoker","itemLevel":"500"}]',
+//        '[{"name":"Keinmut","race":"Zandalari Troll","class":"Druid","role":"Damage","level":"80","itemLevel":"577"},{"name":"Kodeqs","race":"Orc","class":"Hunter","role":"Damage","level":"80","itemLevel":"569"},{"name":"Silador","race":"Blood Elf","class":"Paladin","role":"Damage","level":"80","itemLevel":"568"},{"name":"Vertun","race":"Orc","class":"Warrior","role":"Damage","level":"80","itemLevel":"539"},{"name":"Fireprism","race":"Pandaren","class":"Monk","role":"Tank","level":"80","itemLevel":"527"},{"name":"Bobbini","race":"Undead","class":"Priest","role":"Healer","level":"80","itemLevel":"519"},{"name":"Pflonkk","race":"Blood Elf","class":"Demon Hunter","role":"Tank","level":"72","itemLevel":"500"},{"name":"Gradon","race":"Dracthyr","class":"Evoker","role":"Damage","level":"70","itemLevel":"500"},{"name":"Pflonk","race":"Orc","class":"Warrior","role":"Damage","level":"72","itemLevel":"494"},{"name":"Bigfud","race":"Tauren","class":"Druid","role":"Tank","level":"70","itemLevel":"483"},{"name":"Kutti","race":"Undead","class":"Death Knight","role":"Tank","level":"70","itemLevel":"481"},{"name":"Raxax","race":"Goblin","class":"Shaman","role":"Damage","level":"70","itemLevel":"480"},{"name":"Shnipshnap","race":"Goblin","class":"Rogue","role":"Damage","level":"74","itemLevel":"476"},{"name":"Lillith","race":"Troll","class":"Mage","role":"Damage","level":"70","itemLevel":"465"},{"name":"Holycow","race":"Tauren","class":"Paladin","role":"Tank","level":"70","itemLevel":"432"}]',
 //        true
 //    );
 //}
+$data = filterData($data, $listedThreshold, $listedLevelThreshold);
 writeImage($filePath, $data, $rareThreshold, $epicThreshold, $legendaryThreshold, $fontPath);
 outputImage($filePath);
 
-/**
- * @return array<array{name: string, class: string, itemLevel: string}>
- */
-function loadData(int $listedThreshold): array
+function loadData(): array
 {
-    $data = [];
-
     $browserFactory = new BrowserFactory('chromium');
     $browserFactory->setOptions([
         'sendSyncDefaultTimeout' => 30000, // defaults to 5000
@@ -65,7 +63,7 @@ function loadData(int $listedThreshold): array
 
     try {
         $page = $browser->createPage();
-        $page->navigate('https://worldofwarcraft.blizzard.com/de-de/guild/eu/arygos/famboot?page=1&view=item-level&sort-column=5&sort-descending=false');
+        $page->navigate('https://worldofwarcraft.blizzard.com/en-gb/guild/eu/arygos/famboot?page=1&view=item-level&sort-column=5&sort-descending=false');
         try {
             $page->waitUntilContainsElement('.GuildProfileRoster-table');
         } catch (Exception) {
@@ -80,64 +78,49 @@ function loadData(int $listedThreshold): array
             throw new RuntimeException("Could not fetch any rows");
         }
 
-        foreach ($rows as $row) {
-            /** @var Node $row */
-
-            $name = $row->querySelector('.Character-name')->getText();
-            $classes = explode(' ', $row->querySelector('.Character')->getAttributes()->get('class'));
-            $class = match (true) {
-                in_array('Character--DEATHKNIGHT', $classes) => 'Death Knight',
-                in_array('Character--DEMONHUNTER', $classes) => 'Demon Hunter',
-                in_array('Character--DRUID', $classes) => 'Druid',
-                in_array('Character--EVOKER', $classes) => 'Evoker',
-                in_array('Character--HUNTER', $classes) => 'Hunter',
-                in_array('Character--MAGE', $classes) => 'Mage',
-                in_array('Character--MONK', $classes) => 'Monk',
-                in_array('Character--PALADIN', $classes) => 'Paladin',
-                in_array('Character--PRIEST', $classes) => 'Priest',
-                in_array('Character--ROGUE', $classes) => 'Rogue',
-                in_array('Character--SHAMAN', $classes) => 'Shaman',
-                in_array('Character--WARLOCK', $classes) => 'Warlock',
-                in_array('Character--WARRIOR', $classes) => 'Warrior',
-                default => 'undefined',
-            };
-            $itemLevel = $row->querySelector('.ControlledTable-data:last-child')->getText();
-
-            if ($itemLevel >= $listedThreshold) {
-                $data[] = [
-                    'name' => $name,
-                    'class' => $class,
-                    'itemLevel' => $itemLevel
-                ];
-            }
-        }
+        return Arr::map($rows, fn (Node $row) => [
+            'name' => $row->querySelector('.ControlledTable-col:nth-child(1)')->getAttribute('data-value'),
+            'race' => $row->querySelector('.ControlledTable-col:nth-child(2)')->getAttribute('data-value'),
+            'class' => $row->querySelector('.ControlledTable-col:nth-child(3)')->getAttribute('data-value'),
+            'role' => $row->querySelector('.ControlledTable-col:nth-child(4)')->getAttribute('data-value'),
+            'level' => $row->querySelector('.ControlledTable-col:nth-child(5)')->getAttribute('data-value'),
+            'itemLevel' => $row->querySelector('.ControlledTable-col:nth-child(6)')->getAttribute('data-value'),
+        ]);
     } finally {
         $browser->close();
     }
-
-    return $data;
 }
 
-/**
- * @param  array<array{name: string, class: string, itemLevel: string}>  $data
- */
+function filterData(array $data, int $listedThreshold, int $listedLevelThreshold): array
+{
+    return Arr::where($data, fn ($entry) => //
+        $entry['itemLevel'] >= $listedThreshold &&
+        $entry['level'] >= $listedLevelThreshold);
+}
+
 function writeImage(string $filePath, array $data, $rareThreshold, $epicThreshold, int $legendaryThreshold, string $fontPath): void
 {
     $height = (1 + count($data)) * 20;
 
-    $image = Image::create(150, $height);
+    $image = Image::create(170, $height); // TODO was 150
     prepareImageStyle($image);
 
-    foreach ($data as $i => $d) {
+    foreach ($data as $i => $entry) {
         $y = 25 + $i * 20;
         $itemRarityColor = match (true) {
-            $d['itemLevel'] >= $legendaryThreshold => 0xff8000,
-            $d['itemLevel'] >= $epicThreshold => 0xa335ee,
-            $d['itemLevel'] >= $rareThreshold => 0x0070dd,
+            $entry['itemLevel'] >= $legendaryThreshold => 0xff8000,
+            $entry['itemLevel'] >= $epicThreshold => 0xa335ee,
+            $entry['itemLevel'] >= $rareThreshold => 0x0070dd,
             default => 0x1eff00,
         };
-        $image->write($fontPath, $d['itemLevel'], 10, $y, size: 10, color: $itemRarityColor);
-        $image->write($fontPath, "- {$d['name']}", 35, $y, size: 10, color: getClassColor($d['class']));
+        $roleImagePath = "images/roles/{$entry['role']}.png";
+        if (file_exists($roleImagePath)) {
+            $role = Image::open($roleImagePath)->scaleResize(height: 15);
+            $image->merge($role, 10, $y - 13);
+        }
+
+        $image->write($fontPath, $entry['itemLevel'], 30, $y, size: 10, color: $itemRarityColor);
+        $image->write($fontPath, "- {$entry['name']}", 55, $y, size: 10, color: getClassColor($entry['class']));
     }
 
     $success = $image->save($filePath, str($filePath)->afterLast('.')->toString());
@@ -148,7 +131,7 @@ function writeImage(string $filePath, array $data, $rareThreshold, $epicThreshol
 
 function prepareImageStyle(Image $image): void
 {
-    $background = Image::open('wow_bg.png')->scaleResize(height: $image->height());
+    $background = Image::open('images/wow_bg.png')->scaleResize(height: $image->height());
     $backgroundScalingFactor = $image->height() / $background->height();
     $backgroundOffsetX =
         ($background->width() - 890) * $backgroundScalingFactor // offset in the background image
@@ -162,14 +145,8 @@ function prepareImageStyle(Image $image): void
     $overlay = Image::create($image->width(), $image->height())->fill(0x1E000000);
     $image->merge($overlay);
 
-    $icon = Image::open('icon.png')->scaleResize(width: 30);
-    $image->merge($icon, 114, $image->height() - 41);
-}
-
-function outputImage(string $filePath): void
-{
-    header('Content-Type', 'image/png');
-    echo file_get_contents($filePath);
+    $icon = Image::open('images/icon.png')->scaleResize(width: 30);
+    $image->merge($icon, 134, $image->height() - 41);
 }
 
 function getClassColor($class): int
@@ -191,4 +168,10 @@ function getClassColor($class): int
         'Warrior' => 0xC69B6D,
         default => 0x000000,
     };
+}
+
+function outputImage(string $filePath): void
+{
+    header('Content-Type', 'image/png');
+    echo file_get_contents($filePath);
 }
