@@ -36,6 +36,12 @@ $data = loadData($listedThreshold);
 //    '[{"name":"Tschubax","class":"Mage","itemLevel":"606"},{"name":"Pfl\u00f6nch","class":"Monk","itemLevel":"605"},{"name":"Kurnous","class":"Priest","itemLevel":"603"},{"name":"Droideka","class":"Druid","itemLevel":"603"},{"name":"Krustenk\u00e4se","class":"Warrior","itemLevel":"600"},{"name":"Sorunia","class":"Death Knight","itemLevel":"599"},{"name":"Fr\u00f6stelts","class":"Death Knight","itemLevel":"593"},{"name":"Krustenkase","class":"Warlock","itemLevel":"592"},{"name":"Alele","class":"Priest","itemLevel":"587"},{"name":"P\u00fampernickel","class":"Shaman","itemLevel":"579"},{"name":"Keinmut","class":"Druid","itemLevel":"577"},{"name":"Kodeqs","class":"Hunter","itemLevel":"569"},{"name":"Silador","class":"Paladin","itemLevel":"568"},{"name":"Vertun","class":"Warrior","itemLevel":"539"},{"name":"Fireprism","class":"Monk","itemLevel":"527"},{"name":"Bobbini","class":"Priest","itemLevel":"519"},{"name":"Pflonkk","class":"Demon Hunter","itemLevel":"500"},{"name":"Gradon","class":"Evoker","itemLevel":"500"}]',
 //    true
 //);
+//if (isset($_GET['short'])) {
+//    $data = json_decode(
+//        '[{"name":"Sorunia","class":"Death Knight","itemLevel":"599"},{"name":"Fr\u00f6stelts","class":"Death Knight","itemLevel":"593"},{"name":"Krustenkase","class":"Warlock","itemLevel":"592"},{"name":"Alele","class":"Priest","itemLevel":"587"},{"name":"P\u00fampernickel","class":"Shaman","itemLevel":"579"},{"name":"Keinmut","class":"Druid","itemLevel":"577"},{"name":"Kodeqs","class":"Hunter","itemLevel":"569"},{"name":"Silador","class":"Paladin","itemLevel":"568"},{"name":"Vertun","class":"Warrior","itemLevel":"539"},{"name":"Fireprism","class":"Monk","itemLevel":"527"},{"name":"Bobbini","class":"Priest","itemLevel":"519"},{"name":"Pflonkk","class":"Demon Hunter","itemLevel":"500"},{"name":"Gradon","class":"Evoker","itemLevel":"500"}]',
+//        true
+//    );
+//}
 writeImage($filePath, $data, $rareThreshold, $epicThreshold, $legendaryThreshold, $fontPath);
 outputImage($filePath);
 
@@ -119,9 +125,8 @@ function writeImage(string $filePath, array $data, $rareThreshold, $epicThreshol
 {
     $height = (1 + count($data)) * 20;
 
-    $image = Image::create(150, $height)->fill(0);
-    $icon = Image::open('icon.png')->scaleResize(width: 30);
-    $image->merge($icon, 114, 339);
+    $image = Image::create(150, $height);
+    prepareImageStyle($image);
 
     foreach ($data as $i => $d) {
         $y = 25 + $i * 20;
@@ -139,6 +144,26 @@ function writeImage(string $filePath, array $data, $rareThreshold, $epicThreshol
     if ($success === false) {
         throw new RuntimeException("Could not save image to $filePath");
     }
+}
+
+function prepareImageStyle(Image $image): void
+{
+    $background = Image::open('wow_bg.png')->scaleResize(height: $image->height());
+    $backgroundScalingFactor = $image->height() / $background->height();
+    $backgroundOffsetX =
+        ($background->width() - 890) * $backgroundScalingFactor // offset in the background image
+        - $image->width() // make the offset relative to the right of the image
+    ;
+    $image->merge($background, -$backgroundOffsetX);
+
+    // 76% black overlay is good
+    // 76% overlay results in 24% opacity
+    // 24% opacity of maximum 127 in hex 0x1E
+    $overlay = Image::create($image->width(), $image->height())->fill(0x1E000000);
+    $image->merge($overlay);
+
+    $icon = Image::open('icon.png')->scaleResize(width: 30);
+    $image->merge($icon, 114, $image->height() - 41);
 }
 
 function outputImage(string $filePath): void
