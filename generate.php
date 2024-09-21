@@ -2,16 +2,18 @@
 
 error_reporting(E_ALL);
 set_exception_handler(function (Throwable $exception) {
-    echo "<pre>";
-    echo "Uncaught exception: ", $exception->getMessage(), "\n";
-    echo $exception->getTraceAsString();
-    echo "</pre>";
+    echo str('')
+        ->append("Uncaught exception: ", $exception->getMessage(), "\n")
+        ->append($exception->getTraceAsString())
+        ->wrap('<pre>', '</pre>')
+        ->toString();
 });
 
 require 'shell.php';
 
 composerRequire([
     'illuminate/collections',
+    'illuminate/support',
     'chrome-php/chrome',
     'gregwar/image',
 ]);
@@ -60,7 +62,7 @@ function loadData(int $listedThreshold): array
         $page->navigate('https://worldofwarcraft.blizzard.com/de-de/guild/eu/arygos/famboot?page=1&view=item-level&sort-column=5&sort-descending=false');
         try {
             $page->waitUntilContainsElement('.GuildProfileRoster-table');
-        } catch(Exception) {
+        } catch (Exception) {
             // Because we stil want to continue
         }
 
@@ -130,10 +132,13 @@ function writeImage(string $filePath, array $data, $rareThreshold, $epicThreshol
             default => 0x1eff00,
         };
         $image->write($fontPath, $d['itemLevel'], 10, $y, size: 10, color: $itemRarityColor);
-        $image = $image->write($fontPath, "- {$d['name']}", 35, $y, size: 10, color: getClassColor($d['class']));
+        $image->write($fontPath, "- {$d['name']}", 35, $y, size: 10, color: getClassColor($d['class']));
     }
 
-    $image->save($filePath);
+    $success = $image->save($filePath, str($filePath)->afterLast('.')->toString());
+    if ($success === false) {
+        throw new RuntimeException("Could not save image to $filePath");
+    }
 }
 
 function outputImage(string $filePath): void
