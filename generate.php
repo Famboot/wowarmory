@@ -93,9 +93,11 @@ function loadData(): array
 
 function filterData(array $data, int $listedThreshold, int $listedLevelThreshold): array
 {
-    return Arr::where($data, fn ($entry) => //
+    $filtered = Arr::where($data, fn ($entry) => //
         $entry['itemLevel'] >= $listedThreshold &&
         $entry['level'] >= $listedLevelThreshold);
+
+    return array_values($filtered); // clear indexes
 }
 
 function writeImage(string $filePath, array $data, $rareThreshold, $epicThreshold, int $legendaryThreshold, string $fontPath): void
